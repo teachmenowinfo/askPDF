@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Slide Generator</title>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</head>
+<body>
+  <div class="container">
+    <h1>Slide Generator</h1>
+    <form id="slideForm">
+      <div class="form-group">
+        <label for="subject">Subject:</label>
+        <input type="text" id="subject" name="subject" required>
+      </div>
+      <div class="form-group">
+        <label for="numSlides">Number of Slides:</label>
+        <input type="text" id="numSlides" name="numSlides" required>
+      </div>
+      <div class="form-group">
+        <label for="level">Level:</label>
+        <input type="text" id="level" name="level" required>
+      </div>
+      <button class="btn" type="submit">Generate Slides</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("slideForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      var form = event.target;
+      var formData = new FormData(form);
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "process-form.php", true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          // Success, do something with the response
+          console.log(xhr.responseText);
+        } else {
+          // Error, handle the situation
+          console.error("Error: " + xhr.status);
+        }
+      };
+      xhr.send(formData);
+    });
+  </script>
+</body>
+</html>

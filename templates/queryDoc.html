@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDFX Query</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #f2f2f2, #ffffff);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+            text-align: center;
+            margin-bottom: 300px;
+            margin-top: 100px;
+        }
+
+        #logo-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+
+        #logo {
+            width: 100px; /* Adjust the width and height as needed */
+            height: 200px;
+        }
+
+      
+
+        #uploadForm {
+            display: none; /* Initially hide the form */
+            width: 80%;
+            margin-bottom: 10px;
+            margin: 0 auto; /* Center the form horizontally */
+            border-radius: 5px;
+        }
+
+
+        #queryForm{
+            
+            width: 80%;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        #question, #file {
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 1.2em;
+        }
+        #submit, #upload {
+            padding: 10px 20px;
+            margin-top: 10px;
+            border-radius: 5px;
+            background-color: #0078d4;
+            color: white;
+            font-size: 1.2em;
+            border: none;
+            cursor: pointer;
+        }
+
+
+        .delete {
+            padding: 10px 20px;
+            margin-top: 10px;
+            border-radius: 5px;
+            background-color: hsl(0, 100%, 42%);
+            color: white;
+            font-size: 1.2em;
+            border: none;
+            cursor: pointer;
+        }
+
+
+        #stage {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            width: 80%;
+            background-color: white;
+            color: #333;
+            border-radius: 5px;
+        }
+        #menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #0078d4;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+        #menu a {
+            color: white;
+            text-decoration: none;
+        }
+        #formUpload {
+            padding: 10px 20px;
+            margin-top: 10px;
+            border-radius: 5px;
+            background-color: #0078d4;
+            color: white;
+            font-size: 1.2em;
+            border: none;
+            cursor: pointer;
+        }
+        #thumbnails {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            border-radius: 5px;
+            
+        }
+        #thumbnails img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin: 5px;
+        }
+        .thumbnail {
+            border: 1px solid #ccc;
+            margin: 5px;
+            display: inline-flex; /* Use inline-flex instead of flex to allow shrinking */
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: #FFA500;
+            /* Additional styles for text inside the thumbnail */
+            text-align: center;
+            padding: 5px;
+            white-space: nowrap; /* Prevent text from wrapping */
+            overflow: hidden; /* Hide overflowing text */
+            text-overflow: ellipsis; /* Show ellipsis (...) for truncated text */
+        }
+
+
+        
+
+        #formUploadSection {
+            background-color: #f2f2f251;
+            width: 80%;
+            margin-top: 10px;
+
+        }
+
+        #querySection {
+            background-color: #0078d4;
+            width: 80%;
+            margin-top: 10px;
+
+        }
+
+        #documentSection {
+            background-color: #2ecc71;
+            width: 80%;
+            margin-top: 10px;
+        }
+
+        
+
+        .accordion {
+            background-color: #2ecc71;
+            color: #333;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 16px;
+            transition: 0.4s;
+        }
+
+        .active, .accordion:hover {
+            background-color: #0078d4;
+            color: white;
+        }
+
+        .panel {
+            padding: 0 18px;
+            display: none;
+            background-color: white;
+        }
+    
+    </style>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+
+<body>
+
+    <section id="logoSection">
+        <div id="menu">
+            <div id="logo-container">
+                <img id="logo" src="https://teachmenow.info/wp-content/uploads/2023/06/XGqnlRfbiWiFh2QkMaB8-1.svg" alt="Logo">
+            </div>
+        </div>
+    </section>
+
+
+
+    <section id="faqSection">
+
+        <h2>FAQ</h2>
+
+        <button class="accordion">
+            1. Upload Your PDF</button>
+        <div class="panel">
+            <p>Click on Upload Document Button</p>
+        </div>
+    
+        <button class="accordion">2. Ask Any Question About the Content.</button>
+        <div class="panel">
+            <p>
+                After uploading the US Constitution, you can ask questions such as:
+                <ul>
+                    <li>What is this document?</li>
+                    <li>Summarize the content</li>
+                    <li>Summarize the Bill of Rights</li>
+                    <li>Create 10 quiz questions and their answers</li>
+                </ul>
+            </p>
+        </div>
+    </section>
+
+
+
+    <section id="formUploadSection">
+        <button id="formUpload">Click to Choose Document to Upload</button>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="file" name="file" required><br>
+            <input type="submit" class = "buttonx" id="upload" value="Upload">
+        </form>
+    </section>
+
+
+    <div id="loading-gif" style="display: none;">
+        <iframe src="https://giphy.com/embed/IZcjxKQNbOOly" width="150" height="150" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/clock-tick-tock-IZcjxKQNbOOly">via GIPHY</a></p>
+    </div>
+
+
+    <section id="documentSection">
+        <h2 class="title">Documents</h2>
+        <div id="thumbnails">
+            {% for file in files %}
+            <div class="thumbnail">{{ file }}</div>
+            {% endfor %}
+        </div>
+        
+        <button class="delete"  class = "buttonx" data-filename="{{ file }}">Delete</button>
+    </section>
+
+
+
+    <section id="query">
+        <form id="queryForm">
+            <h2 class="title">Questions</h2>
+            <input type="text" id="question" name="question" required><br>
+            <input type="submit" class = "buttonx" id="submit" value="Submit">
+        </form>
+    
+    
+        
+    
+        <div id="stage">Results will be displayed here...</div>
+        </div>
+    </section>
+    
+
+    
+
+
+
+
+    <script>
+        const accordions = document.getElementsByClassName("accordion");
+    
+        for (let i = 0; i < accordions.length; i++) {
+            accordions[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                const panel = this.nextElementSibling;
+                if (panel.style.display === "block") {
+                    panel.style.display = "none";
+                } else {
+                    panel.style.display = "block";
+                }
+            });
+        }
+    </script>
+    
+
+
+
+    <script>
+        $(document).ready(function() {
+
+
+            var docChosen = null;
+
+            function showLoadingGIF() {
+                $('#loading-gif').show();
+                $('#stage').empty().hide();
+            }
+
+
+            function hideLoadingGIF() {
+                $('#loading-gif').hide();
+                $('#stage').show();
+            }
+
+
+
+            $('.thumbnail').on('click', function() {
+                $('.thumbnail').css('background-color', '#FFA500'); // Reset color of all thumbnails
+                $(this).css('background-color', '#0078d4'); // Set color of clicked thumbnail
+                docChosen = $(this).text(); // Set docChosen to the text of the clicked thumbnail
+            });
+
+
+         
+            $('#formUpload').on('click', function() {
+                $('#uploadForm').toggle();
+            });
+
+
+            $('.buttonx').on('click', function() {
+                $(this).css('background-color', '#f44336'); // Change the background color to red
+            });
+
+
+
+            $('#uploadForm').on('submit', function(e) {
+                e.preventDefault();
+                showLoadingGIF(); 
+
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '/upload',
+                    type: 'POST',
+                    data: formData,
+                    success: function(data) {
+                        $('#stage').html(data);
+                        location.reload();
+
+                        // Code to update thumbnails goes here
+                    },
+                    error: function() {
+                        $('#stage').html('An error occurred.');
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            });
+            
+            
+
+            $('.delete').on('click', function() {
+                showLoadingGIF(); 
+                var filename = $(this).data('filename');
+                $.ajax({
+                    url: '/delete',
+                    type: 'POST',
+                    data: { filename: docChosen },
+                    success: function(data) {
+
+                        location.reload();
+                    },
+                    error: function() {
+                        alert('An error occurred.');
+                    }
+                });
+            });
+
+
+
+
+
+            
+            $('#queryForm').on('submit', function(e) {
+                e.preventDefault();
+                showLoadingGIF(); 
+                var question = $('#question').val();
+                $.ajax({
+                    url: 'pdfx1',
+                    type: 'POST',
+                    //data: { question: question },
+                    data: { question: question, docChosen: docChosen },
+
+                    success: function(data) {
+                        hideLoadingGIF();
+                        $('#stage').html(data);
+                        $('.buttonx').css('background-color', '#0078d4');
+               
+                    },
+                    error: function() {
+                        $('#stage').html('An error occurred.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Slides</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            var voiceOptionsText = $('<span>').text('Choose Voice: ');
+            var avatarVoiceOptions = $('<select>').addClass('avatar-voice-options');
+            var uploadButton = $('<button>').text('Upload Avatar Image').addClass('upload-button');
+
+            avatarVoiceOptions.click(function() {
+                $.ajax({
+                    type: 'GET',
+                    url: '/avatar_voice_options',
+                    success: function(response) {
+                        var voiceOptions = response.names;
+                        voiceOptions.forEach(function(option) {
+                        if (!avatarVoiceOptions.find('option[value="' + option.url + '"]').length) {
+                            var voiceOption = $('<option>').text(option.name).val(option.url);
+                            avatarVoiceOptions.append(voiceOption);
+                        }
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            });
+
+
+            uploadButton.click(function() {
+                var fileInput = $('<input>').attr('type', 'file').change(function() {
+                    var file = fileInput.prop('files')[0];
+                    if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            var imageBytes = new Uint8Array(e.target.result);
+                            var filename = file.name;
+                            var imageData = {
+                                "image_bytes": Array.from(imageBytes),
+                                "filename": filename
+                            };
+                            saveImage(imageData);
+                        };
+                        reader.readAsArrayBuffer(file);
+                    }
+                });
+                fileInput.click();
+            });
+
+           
+
+
+
+
+
+
+
+
+
+
+
+            $('#slides-form').submit(function(event) {
+                event.preventDefault();
+                var text = $('#text-input').val();
+                var numberOfSlides = $('#number-of-slides-input').val();
+                var level = $('#level-input').val();
+                var requestData = {
+                    "text": text,
+                    "number_of_slides": numberOfSlides,
+                    "level": level
+                };
+
+                // Disable the button and show the loading icon
+                var generateButton = $('#generate-button');
+                generateButton.prop('disabled', true);
+                generateButton.html('<i class="fas fa-spinner fa-spin"></i> Generating...');
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/generate_basic_slides',
+                    data: JSON.stringify(requestData),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        console.log(response.slides);
+                        displaySlides(response.slides);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                    },
+                    complete: function() {
+                        // Enable the button and restore the original text
+                        generateButton.prop('disabled', false);
+                        generateButton.text('Generate Slides');
+                    }
+                });
+            });
+
+
+
+
+
+
+
+
+            $('#pdf').submit(function(event) {
+                event.preventDefault();
+                alert("pdf");
+                var text = $('#text-input').val();
+                var numberOfSlides = $('#number-of-slides-input').val();
+                var level = $('#level-input').val();
+                var requestData = {
+                    "text": text,
+                    "number_of_slides": numberOfSlides,
+                    "level": level
+                };
+
+                // Disable the button and show the loading icon
+                var generateButton = $('#generate-button');
+                generateButton.prop('disabled', true);
+                generateButton.html('<i class="fas fa-spinner fa-spin"></i> Generating...');
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/generate_basic_slides',
+                    url: '/upload',
+                    data: JSON.stringify(requestData),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        console.log(response.slides);
+                        displaySlides(response.slides);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                    },
+                    complete: function() {
+                        // Enable the button and restore the original text
+                        generateButton.prop('disabled', false);
+                        generateButton.text('Generate Slides');
+                    }
+                });
+            });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            function displaySlides(slides) {
+                var slidesContainer = $('#slides-container');
+                slidesContainer.empty();
+
+                slides.forEach(function(slide) {
+                    var slideDiv = $('<div>').addClass('slide');
+
+                    var titleInput = $('<textarea>').text(slide.title).addClass('slide-body');
+
+                    var bodyInput = $('<textarea>').text(slide.body).addClass('slide-body');
+
+                    var generateAvatarButton = $('<button>').text('Generate Avatar');
+                    generateAvatarButton.click(function() {
+                        var selectedVoiceOption = avatarVoiceOptions.val();
+                        var selectedImageUrl = slidesContainer.data('image-url');
+                        var generateData = {
+                            "voice_url": selectedVoiceOption,
+                            "image_url": selectedImageUrl,
+                            "text": bodyInput.val()
+                        };
+                        generateAvatar(generateData, slideDiv, generateAvatarButton);
+                    });
+
+                    slideDiv.append(titleInput, "</br>", bodyInput,"</br>", generateAvatarButton,"</br>",);
+                    slidesContainer.append(slideDiv);
+                });
+
+                // Automatically expand the generated textarea elements
+                $('textarea').each(function() {
+                    this.style.height = (this.scrollHeight + 2) + 'px';
+                });
+            }
+
+            function saveImage(imageData) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/save_image',
+                    data: JSON.stringify(imageData),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        var imageUrl = response.url;
+                        $('#slides-container').data('image-url', imageUrl);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+
+            function generateAvatar(generateData, slideDiv, generateAvatarButton) {
+                generateAvatarButton.prop('disabled', true);
+                generateAvatarButton.html('<i class="fas fa-spinner fa-spin"></i> Generating...');
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/avatar_from_text_image_voice',
+                    data: JSON.stringify(generateData),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        var videoUrl = response.url;
+                        var thumbnailElement = $('<video controls>').attr('src', videoUrl).addClass('thumbnail');
+                        slideDiv.append(thumbnailElement);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                    },
+                    complete: function() {
+                        generateAvatarButton.prop('disabled', false);
+                        generateAvatarButton.text('Generate Avatar');
+                    }
+                });
+            }
+
+            $('#slides-container').append(voiceOptionsText, avatarVoiceOptions, uploadButton);
+        });
+    </script>
+    <style>
+        .slide {
+            margin-bottom: 20px;
+        }
+
+        .slide-body {
+            height: auto;
+            width: 100%;
+        }
+
+        .avatar-voice-options {
+            margin-bottom: 10px;
+        }
+
+        .upload-button {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .thumbnail {
+            max-width: 150px;
+            max-height: 150px;
+        }
+    </style>
+</head>
+<body>
+    <form id="slides-form">
+        <label for="text-input">Subject:</label>
+        <input type="text" id="text-input" required>
+
+        <label for="number-of-slides-input">Number of Slides:</label>
+        <input type="number" id="number-of-slides-input" required>
+
+        <label for="level-input">Level:</label>
+        <input type="text" id="level-input" required>
+
+        <button id="generate-button" type="submit">Generate Slides</button>
+    </form>
+
+
+    <h1>Upload a File</h1>
+    <form  id = "pdf">
+        <input type="file" name="file">
+        <button id="pdfx" type="submit">Submit PDF</button>
+    </form>
+
+
+
+
+
+
+    <center><div id="slides-container"></div></center>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
