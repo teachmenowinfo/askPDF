@@ -13,10 +13,14 @@ from langchain.llms import OpenAI
 from langchain.document_loaders import MathpixPDFLoader
 from langchain.document_loaders import UnstructuredPDFLoader
 import getpass
+from dotenv import load_dotenv
+
+load_dotenv()
+OPENAI_API_KEY = os.getenv("API_KEY")
+
 
 
 app = Flask(__name__, static_url_path='/static')
-os.environ['OPENAI_API_KEY'] = "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"
 
 
 
@@ -130,7 +134,7 @@ def delete_file():
 
   
 if __name__ == "__main__":
-    app.run(debug=True,  host='0.0.0.0', port = 5001)
+    app.run(debug=True,  host='0.0.0.0', port = 5002)
     
 
 
